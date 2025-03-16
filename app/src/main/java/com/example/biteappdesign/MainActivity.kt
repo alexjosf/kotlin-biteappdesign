@@ -1,9 +1,11 @@
 package com.example.biteappdesign
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,10 +23,15 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import com.example.biteappdesign.ui.theme.BiteappdesignTheme
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -61,6 +69,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(modifier: Modifier = Modifier) {
+    var text by remember { mutableStateOf("") }
+
     Image(
         modifier = Modifier
             .fillMaxSize()
@@ -101,7 +111,22 @@ fun Greeting(modifier: Modifier = Modifier) {
                     )
                 }
                 Spacer(modifier = modifier.width(10.dp))
-                Text(text = "What tempts you today?")
+                BasicTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    textStyle = androidx.compose.ui.text.TextStyle(
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    decorationBox = { innerTextField ->
+                        if (text.isEmpty()) {
+                            Text("What tempts you today?", color = Color.Gray)
+                        }
+                        innerTextField()
+                    }
+                )
             }
             Spacer(modifier = modifier.width(10.dp))
             Image(
@@ -123,23 +148,19 @@ fun Cards() {
         listOf("🍩", "cafe"),
         listOf("🍺", "bar"),
         listOf("🏠", "hotel"),
-        listOf("🏛", "museum")
+        listOf("🏛", "museum"),
+        listOf("🏪", "School"),
+        listOf("⛩", "Hospital")
     )
 
-    val images = listOf(
-        R.drawable.pexels1,
-        R.drawable.pexels2,
-        R.drawable.pexels3,
-        R.drawable.pexels4,
-        R.drawable.pexels5,
-    )
+    data class Dish(val name: String, val tags: List<String>)
 
-    val tags = listOf(
-        listOf("Authentic", "Italian", "Spaghetti"),
-        listOf("Traditional", "Roman", "Pasta"),
-        listOf("Handmade", "Neapolitan", "Gnocchi"),
-        listOf("Classic", "Sicilian", "Lasagna"),
-        listOf("Fresh", "Tuscan", "Ravioli")
+    val imageTagMap = mapOf(
+        R.drawable.pexels1 to Dish("Tortilla", listOf("Authentic", "Italian", "Spaghetti")),
+        R.drawable.pexels2 to Dish("Pasta", listOf("Traditional", "Roman", "Pasta")),
+        R.drawable.pexels3 to Dish("Gnocchi", listOf("Handmade", "Neapolitan", "Gnocchi")),
+        R.drawable.pexels4 to Dish("Lasagna", listOf("Classic", "Sicilian", "Lasagna")),
+        R.drawable.pexels5 to Dish("Ravioli", listOf("Fresh", "Tuscan", "Ravioli"))
     )
 
     Column(){
@@ -147,7 +168,7 @@ fun Cards() {
             items(listItems) { item ->
                     Row(
                         modifier = Modifier
-                            .padding(vertical = 10.dp, horizontal = 5.dp)
+                            .padding(horizontal = 5.dp)
                             .clip(shape = CircleShape)
                             .background(color = Color.White)
                             .padding(vertical = 5.dp, horizontal = 10.dp)
@@ -161,7 +182,7 @@ fun Cards() {
 
 
         LazyRow {
-            items(images) { outerIndex ->
+            items(imageTagMap.toList()) { (outerIndex, tags) ->
                 Column(
                     modifier = Modifier
                         .padding(10.dp)
@@ -178,7 +199,7 @@ fun Cards() {
 
                     )
                     Text(
-                        text = "Tortilla",
+                        text = tags.name,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
@@ -187,7 +208,7 @@ fun Cards() {
                     LazyRow (
                         modifier = Modifier.fillMaxWidth()
                     ){
-                        items(tags[0]) { item ->
+                        items(tags.tags) { item ->
                             Column(
                                 modifier = Modifier
                                     .padding(vertical = 10.dp, horizontal = 5.dp)
