@@ -179,8 +179,6 @@ fun Cards() {
                     }
                 }
         }
-
-
         LazyRow {
             items(imageTagMap.toList()) { (outerIndex, tags) ->
                 Column(
